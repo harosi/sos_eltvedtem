@@ -122,6 +122,16 @@ class SilentAlertReceiver : BroadcastReceiver() {
         val widgetData = HomeWidgetPlugin.getData(context)
         val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
 
+        // --- LICENC ELLENŐRZÉSE ---
+        val isLicensed = widgetData.getBoolean("is_licensed", false) || flutterPrefs.getBoolean("flutter.is_licensed", false)
+        if (!isLicensed) {
+            guardPrefs.edit().putBoolean("is_currently_sending", false).apply()
+            val noLicenseMsg = "⚠️ Az app nincs aktiválva! Kérjük aktiválja a Beállításokban."
+            Toast.makeText(context, noLicenseMsg, Toast.LENGTH_LONG).show()
+            speak(context, "Az alkalmazás nincs aktiválva. Kérjük nyissa meg a beállításokat.")
+            return
+        }
+
         // 1. Beírt név beolvasása (HomeWidget vagy FlutterSharedPreferences)
         var contactName = widgetData.getString("target_name", "")?.trim() ?: ""
         if (contactName.isBlank()) {
@@ -319,14 +329,12 @@ class SilentAlertReceiver : BroadcastReceiver() {
                 }
             }
 
-            // A felugró ablakban megjelenítendő szöveg kizárólag a beírt adatokból:
             val displayRecipient = if (contactName.isNotBlank()) {
                 "$contactName\n$cleanList"
             } else {
                 cleanList
             }
 
-            // Hangbemondás dinamikusan a beírt név szerint
             val voiceMsg = if (contactName.isNotBlank()) {
                 if (isEmergency) "Segélykérés elküldve neki: $contactName!" else "Helyzet elküldve neki: $contactName!"
             } else {
@@ -336,7 +344,6 @@ class SilentAlertReceiver : BroadcastReceiver() {
             Toast.makeText(context, voiceMsg, Toast.LENGTH_SHORT).show()
             speak(context, voiceMsg)
 
-            // Felugró ablak hívása
             showPopupNotification(
                 context,
                 if (isEmergency) "🚨 Segélykérés elküldve!" else "📍 Helyzet elküldve!",
