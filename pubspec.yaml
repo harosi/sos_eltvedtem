@@ -1,0 +1,36 @@
+name: sos_eltvedtem
+description: "SOS Eltévedtem vészhívó és helyzetküldő alkalmazás"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Felhasználói beállítások helyi mentése
+  shared_preferences: ^2.2.2
+
+  # Főképernyős Android widget kommunikáció
+  home_widget: ^0.7.0
+
+  # GPS helymeghatározás az Otthon pozíció rögzítéséhez
+  geolocator: ^12.0.0
+
+  # Ikonok támogatása
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Ha használsz helyi képeket vagy ikon asseteket, ide jönnek:
+  # assets:
+  #   - assets/

@@ -1,0 +1,4 @@
+*.apk
+build/
+.dart_tool/
+.gradle/
