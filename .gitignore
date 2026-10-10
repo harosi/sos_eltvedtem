@@ -2,3 +2,16 @@
 build/
 .dart_tool/
 .gradle/
+
+# --- build es generalt fajlok ---
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+android/.gradle/
+android/local.properties
+
+# --- titkok / alairas (SOHA ne keruljenek a repoba) ---
+*.jks
+*.keystore
+key.properties
