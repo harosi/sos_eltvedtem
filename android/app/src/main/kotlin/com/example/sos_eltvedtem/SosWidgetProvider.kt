@@ -102,8 +102,7 @@ class SilentAlertReceiver : BroadcastReceiver() {
 
         if (lastTapTime == 0L || elapsedSinceTap > DOUBLE_TAP_WINDOW_MS) {
             guardPrefs.edit().putLong(actionKey, currentTime).apply()
-            vibrate(context, 100)
-
+            vibrate(context, 150)
             val promptMsg = if (isEmergency) "Nyomd meg újra a segélykéréshez!" else "Nyomd meg újra a küldéshez!"
             Toast.makeText(context, promptMsg, Toast.LENGTH_SHORT).show()
             speak(context, "Nyomd meg még egyszer a küldéshez!")
@@ -122,7 +121,7 @@ class SilentAlertReceiver : BroadcastReceiver() {
         val widgetData = HomeWidgetPlugin.getData(context)
         val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
 
-        // 1. Beírt név beolvasása (HomeWidget vagy FlutterSharedPreferences)
+        // 1. Címzett neve
         var contactName = widgetData.getString("target_name", "")?.trim() ?: ""
         if (contactName.isBlank()) {
             contactName = widgetData.getString("target_names", "")?.trim() ?: ""
@@ -131,13 +130,13 @@ class SilentAlertReceiver : BroadcastReceiver() {
             contactName = flutterPrefs.getString("flutter.target_name", "")?.trim() ?: ""
         }
 
-        // 2. Beírt telefonszám beolvasása
+        // 2. Címzett telefonszáma
         var targetPhones = widgetData.getString("target_phones", "")?.trim() ?: ""
         if (targetPhones.isBlank()) {
             targetPhones = flutterPrefs.getString("flutter.target_phones", "")?.trim() ?: ""
         }
 
-        // 3. Saját szám
+        // 3. Feladó száma
         var senderPhone = widgetData.getString("my_sender_phone", "")?.trim() ?: ""
         if (senderPhone.isBlank()) {
             senderPhone = widgetData.getString("my_phone", "")?.trim() ?: ""
@@ -255,6 +254,13 @@ class SilentAlertReceiver : BroadcastReceiver() {
         }
 
         val widgetData = HomeWidgetPlugin.getData(context)
+        val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+
+        val senderName = (widgetData.getString("sender_name", "") ?: "")
+            .ifBlank { widgetData.getString("user_name", "") ?: "" }
+            .ifBlank { flutterPrefs.getString("flutter.sender_name", "") ?: "" }
+            .ifBlank { flutterPrefs.getString("flutter.user_name", "") ?: "" }
+
         val homeLat = widgetData.getString("home_lat", "")?.toDoubleOrNull()
         val homeLng = widgetData.getString("home_lng", "")?.toDoubleOrNull()
 
@@ -266,34 +272,33 @@ class SilentAlertReceiver : BroadcastReceiver() {
             }
             val distMeters = location.distanceTo(homeLoc)
             distanceText = if (distMeters >= 1000) {
-                String.format(Locale("hu", "HU"), "🏠 Távolság otthontól: kb. %.1f km\n", distMeters / 1000.0)
+                String.format(Locale("hu", "HU"), "🏠 Otthon: kb. %.1f km\n", distMeters / 1000.0)
             } else {
-                String.format(Locale("hu", "HU"), "🏠 Távolság otthontól: kb. %d m\n", distMeters.toInt())
+                String.format(Locale("hu", "HU"), "🏠 Otthon: kb. %d m\n", distMeters.toInt())
             }
         }
 
         val messageText = buildString {
-            append(title).append("\n")
-
-            if (senderPhone.isNotBlank()) {
-                append("📞 Segélykérő száma: ").append(senderPhone).append("\n")
+            append(title).append("\n\n")
+            if (senderName.isNotBlank()) {
+                append("👤 Név: ").append(senderName).append("\n")
             }
-
+            if (senderPhone.isNotBlank()) {
+                append("📞 Tel: ").append(senderPhone).append("\n")
+            }
             if (distanceText.isNotEmpty()) {
                 append(distanceText)
             }
-
             if (location != null) {
                 val formattedLat = String.format(Locale.US, "%.5f", location.latitude)
                 val formattedLng = String.format(Locale.US, "%.5f", location.longitude)
-
-                append("📍 Helyzet: ").append(formattedLat).append(", ").append(formattedLng).append("\n")
-                append("🗺️ Térkép: https://www.google.com/maps/search/?api=1&query=")
+                append("📍 GPS: ").append(formattedLat).append(", ").append(formattedLng).append("\n")
+                append("🗺️ Térkép:\nhttps://www.google.com/maps/search/?api=1&query=")
                     .append(formattedLat)
                     .append("%2C")
                     .append(formattedLng)
             } else {
-                append("📍 Helyzet: GPS jel keresése sikertelen.")
+                append("📍 GPS: Keresés sikertelen.")
             }
         }
 
@@ -319,14 +324,14 @@ class SilentAlertReceiver : BroadcastReceiver() {
                 }
             }
 
-            // A felugró ablakban megjelenítendő szöveg kizárólag a beírt adatokból:
+            // A felugró ablakban megjelenítendő szöveg
             val displayRecipient = if (contactName.isNotBlank()) {
                 "$contactName\n$cleanList"
             } else {
                 cleanList
             }
 
-            // Hangbemondás dinamikusan a beírt név szerint
+            // Hangbemondás dinamikusan
             val voiceMsg = if (contactName.isNotBlank()) {
                 if (isEmergency) "Segélykérés elküldve neki: $contactName!" else "Helyzet elküldve neki: $contactName!"
             } else {
