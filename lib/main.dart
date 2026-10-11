@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿import "dart:convert";
 import "package:flutter/material.dart";
 import "package:home_widget/home_widget.dart";
@@ -5,6 +6,13 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:geolocator/geolocator.dart";
 import "package:flutter_contacts/flutter_contacts.dart";
 import "license_service.dart";
+=======
+﻿import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
+import 'license_service.dart';
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,8 +61,11 @@ class SettingsBottomSheetScreen extends StatefulWidget {
 class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
   final TextEditingController _senderNameController = TextEditingController();
   final TextEditingController _myPhoneController = TextEditingController();
+<<<<<<< HEAD
   final TextEditingController _newContactNameController = TextEditingController();
   final TextEditingController _newContactPhoneController = TextEditingController();
+=======
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
   final TextEditingController _licenseCodeController = TextEditingController();
 
   double? _homeLat;
@@ -64,16 +75,38 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
   int _deviceId = 0;
   bool _isLicensed = false;
 
+  int _deviceId = 0;
+  bool _isLicensed = false;
+
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     _loadAllData();
+=======
+    _loadSettings();
+    _loadLicenseInfo();
+    _checkLocationPermission();
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
   }
 
   Future<void> _loadAllData() async {
     final devId = await LicenseService.getDeviceId();
     final licensed = await LicenseService.isLicensed();
 
+<<<<<<< HEAD
+=======
+  Future<void> _loadLicenseInfo() async {
+    final devId = await LicenseService.getDeviceId();
+    final licensed = await LicenseService.isLicensed();
+    setState(() {
+      _deviceId = devId;
+      _isLicensed = licensed;
+    });
+  }
+
+  Future<void> _loadSettings() async {
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
     final prefs = await SharedPreferences.getInstance();
     final savedSenderName = prefs.getString("sender_name") ?? "";
     final savedMyPhone = prefs.getString("my_sender_phone") ?? "06705577232";
@@ -108,6 +141,7 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
 
   Future<void> _activateLicense() async {
     final code = _licenseCodeController.text.trim();
+<<<<<<< HEAD
     if (code.isEmpty) return;
 
     final success = await LicenseService.activate(code);
@@ -120,6 +154,51 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("🎉 Sikeres aktiválás!"), backgroundColor: Colors.green),
         );
+=======
+    if (code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kérjük, adja meg a 6 jegyű feloldókódot!')),
+      );
+      return;
+    }
+
+    final success = await LicenseService.activate(code);
+    if (success) {
+      await HomeWidget.saveWidgetData<bool>('is_licensed', true);
+      await HomeWidget.updateWidget(name: 'SosWidgetProvider');
+
+      setState(() {
+        _isLicensed = true;
+      });
+      _licenseCodeController.clear();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Sikeres aktiválás! Az alkalmazás feloldva.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Érvénytelen aktivációs kód! Ellenőrizze a számokat.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _saveCurrentLocationAsHome() async {
+    setState(() => _isLoading = true);
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
       }
     } else {
       if (mounted) {
@@ -226,6 +305,7 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
     final senderName = _senderNameController.text.trim();
     final myPhone = _myPhoneController.text.trim();
 
+<<<<<<< HEAD
     await prefs.setString("sender_name", senderName);
     await prefs.setString("my_sender_phone", myPhone);
 
@@ -245,6 +325,17 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
     await HomeWidget.saveWidgetData<String>("target_name", allNames);
     await HomeWidget.saveWidgetData<bool>("is_licensed", _isLicensed);
     await HomeWidget.updateWidget(name: "SosWidgetProvider");
+=======
+    await prefs.setString('target_name', name);
+    await prefs.setString('target_phones', phones);
+    await prefs.setString('my_sender_phone', myPhone);
+
+    await HomeWidget.saveWidgetData<String>('target_name', name);
+    await HomeWidget.saveWidgetData<String>('target_phones', phones);
+    await HomeWidget.saveWidgetData<String>('my_sender_phone', myPhone);
+    await HomeWidget.saveWidgetData<bool>('is_licensed', _isLicensed);
+    await HomeWidget.updateWidget(name: 'SosWidgetProvider');
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -265,10 +356,16 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+<<<<<<< HEAD
             // LICENC BLOKK
             Container(
               margin: const EdgeInsets.only(bottom: 20),
               padding: const EdgeInsets.all(16),
+=======
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 24),
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
               decoration: BoxDecoration(
                 color: _isLicensed ? const Color(0xFF064E3B) : const Color(0xFF451A03),
                 borderRadius: BorderRadius.circular(12),
@@ -282,6 +379,7 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
                 children: [
                   Row(
                     children: [
+<<<<<<< HEAD
                       Icon(_isLicensed ? Icons.verified : Icons.lock_outline,
                           color: _isLicensed ? Colors.greenAccent : Colors.orangeAccent, size: 22),
                       const SizedBox(width: 8),
@@ -290,11 +388,25 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+=======
+                      Icon(
+                        _isLicensed ? Icons.verified : Icons.lock_outline,
+                        color: _isLicensed ? Colors.greenAccent : Colors.orangeAccent,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _isLicensed ? 'LICENC AKTIVÁLVA' : 'LICENC AKTIVÁLÁSA SZÜKSÉGES',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
                           color: _isLicensed ? Colors.greenAccent : Colors.orangeAccent,
                         ),
                       ),
                     ],
                   ),
+<<<<<<< HEAD
                   const SizedBox(height: 8),
                   Text(
                     "Készülékkód: $_deviceId",
@@ -340,6 +452,64 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
             const Text("Segélykérő neve (SMS-ben szerepel):",
                 style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
+=======
+                  const SizedBox(height: 10),
+                  Text(
+                    'Készülékkód: ${_deviceId == 0 ? "Betöltés..." : _deviceId}',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Ezt a 4 jegyű számot adja meg a weboldalon a végleges feloldókód megszerzéséhez.',
+                    style: TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                  if (!_isLicensed) ...[
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _licenseCodeController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: '6 jegyű feloldókód',
+                        hintText: 'pl. 123456',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color(0xFF1F2937),
+                        isDense: true,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: _activateLicense,
+                      icon: const Icon(Icons.key),
+                      label: const Text('AKTIVÁLÁS'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent.shade700,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const Text(
+              'Értesítendő hozzátartozó adatai',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _targetNameController,
+              decoration: const InputDecoration(
+                labelText: 'Megnevezés / Név',
+                hintText: 'pl. Fiam, Lányom, Gondozó',
+                prefixIcon: Icon(Icons.person, color: Colors.amber),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Color(0xFF1F2937),
+              ),
+            ),
+            const SizedBox(height: 14),
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
             TextField(
               controller: _senderNameController,
               style: const TextStyle(color: Colors.white),
@@ -399,6 +569,7 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
               ),
             ),
             const SizedBox(height: 24),
+<<<<<<< HEAD
 
             // ÚJ ÉRTESÍTENDŐ + TELEFONKÖNYV GOMB
             const Text("Új értesítendő személy:",
@@ -522,6 +693,48 @@ class _SettingsBottomSheetScreenState extends State<SettingsBottomSheetScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                 ),
+=======
+            const Text(
+              'Saját adatok és Otthon pozíció',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _myPhoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Saját telefonszámom (opcionális)',
+                hintText: 'Az SMS-be bekerülő segélykérő szám',
+                prefixIcon: Icon(Icons.phone_android),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Color(0xFF1F2937),
+              ),
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: _isLoading ? null : _saveCurrentLocationAsHome,
+              icon: const Icon(Icons.my_location, color: Colors.orangeAccent),
+              label: Text(
+                _homeLat != null
+                    ? 'Otthon rögzítve (${_homeLat!.toStringAsFixed(4)}, ${_homeLng!.toStringAsFixed(4)})'
+                    : 'Jelenlegi hely beállítása Otthonként',
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: const BorderSide(color: Colors.orangeAccent),
+              ),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: _saveAllSettings,
+              icon: const Icon(Icons.save, size: 24),
+              label: const Text('BEÁLLÍTÁSOK MENTÉSE', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
               ),
             ),
           ],

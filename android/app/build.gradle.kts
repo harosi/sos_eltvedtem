@@ -39,9 +39,20 @@ android {
 
     buildTypes {
         release {
+<<<<<<< HEAD
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             isShrinkResources = false
+=======
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Signing with the debug keys for now, so release build works.
+            signingConfig = signingConfigs.getByName("debug")
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
         }
     }
 }

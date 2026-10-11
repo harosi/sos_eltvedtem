@@ -121,7 +121,21 @@ class SilentAlertReceiver : BroadcastReceiver() {
         val widgetData = HomeWidgetPlugin.getData(context)
         val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
 
+<<<<<<< HEAD
         // 1. Címzett neve
+=======
+        // --- LICENC ELLENŐRZÉSE ---
+        val isLicensed = widgetData.getBoolean("is_licensed", false) || flutterPrefs.getBoolean("flutter.is_licensed", false)
+        if (!isLicensed) {
+            guardPrefs.edit().putBoolean("is_currently_sending", false).apply()
+            val noLicenseMsg = "⚠️ Az app nincs aktiválva! Kérjük aktiválja a Beállításokban."
+            Toast.makeText(context, noLicenseMsg, Toast.LENGTH_LONG).show()
+            speak(context, "Az alkalmazás nincs aktiválva. Kérjük nyissa meg a beállításokat.")
+            return
+        }
+
+        // 1. Beírt név beolvasása (HomeWidget vagy FlutterSharedPreferences)
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
         var contactName = widgetData.getString("target_name", "")?.trim() ?: ""
         if (contactName.isBlank()) {
             contactName = widgetData.getString("target_names", "")?.trim() ?: ""
@@ -324,14 +338,20 @@ class SilentAlertReceiver : BroadcastReceiver() {
                 }
             }
 
+<<<<<<< HEAD
             // A felugró ablakban megjelenítendő szöveg
+=======
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
             val displayRecipient = if (contactName.isNotBlank()) {
                 "$contactName\n$cleanList"
             } else {
                 cleanList
             }
 
+<<<<<<< HEAD
             // Hangbemondás dinamikusan
+=======
+>>>>>>> 2cbdb18ca336818f3e19ef77dbcf313ac6004050
             val voiceMsg = if (contactName.isNotBlank()) {
                 if (isEmergency) "Segélykérés elküldve neki: $contactName!" else "Helyzet elküldve neki: $contactName!"
             } else {
@@ -341,7 +361,6 @@ class SilentAlertReceiver : BroadcastReceiver() {
             Toast.makeText(context, voiceMsg, Toast.LENGTH_SHORT).show()
             speak(context, voiceMsg)
 
-            // Felugró ablak hívása
             showPopupNotification(
                 context,
                 if (isEmergency) "🚨 Segélykérés elküldve!" else "📍 Helyzet elküldve!",
